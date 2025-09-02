@@ -17,10 +17,10 @@ A Flask application to evaluate, rank, and recognize student clubs using multi-s
 ### Evaluation Metrics (weighted)
 - Social: Instagram posts, likes, reach
 - WhatsApp: messages and average sentiment
-- Awards won: discrete count
+- Awards won: discrete count of awards won by the club members
 - Attendance: total offline attendance
 - Feedback: student vote counts
-- Reports (new): score computed from per-club textual history reports
+- Reports: score computed from per-club textual history reports
 
 ### Award Categories (sample)
 1. **Best Public Speaking Club** - For MUN Club, Debate Club, Toastmasters Club
