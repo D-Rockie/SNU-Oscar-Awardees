@@ -108,6 +108,27 @@ This creates/updates all CSVs and the `data/reports/` folder.
 - Reports metric is derived from `data/reports/club_<id>.txt` with a simple keyword-based heuristic.
 - Weights include: `w_social`, `w_whatsapp`, `w_awards`, `w_feedback`, `w_attendance`, `w_reports`.
 
+  #### Scoring formula
+- All components are normalized to [0, 1] across eligible clubs for the selected award.
+- Components:
+  - `social = average( norm(posts), norm(likes), norm(reach) )`
+  - `whatsapp = 0.7 * norm(messages) + 0.3 * norm(sentiment)`
+  - `awards = norm(awards_won)`
+  - `feedback = norm(vote_count_for_this_award)`
+  - `attendance = norm(offline_attendance)`
+  - `reports = norm(report_score)`
+
+Final score per club:
+
+```
+score = w_social * social
+      + w_whatsapp * whatsapp
+      + w_awards * awards
+      + w_feedback * feedback
+      + w_attendance * attendance
+      + w_reports * reports
+```
+
 ### Database Tables (core)
 - `User`, `Club`, `Award`, `Nomination`, `FeedbackVote`, `EvaluationWeights`, `AwardDecision`
 
