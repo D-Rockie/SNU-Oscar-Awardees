@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Oscar Pista Awards{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-5">
+                <i class="fas fa-crown me-3"></i>Admin Dashboard
+            </h1>
+        </div>
+    </div>
+
+    <!-- Quick Actions (Prominent) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 rounded bg-light border">
+                <div class="row g-3 align-items-stretch">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('awards') }}" class="btn btn-primary btn-lg w-100 shadow-sm">
+                                <i class="fas fa-ranking-star me-2"></i>View Rankings (per Award)
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('clubs') }}" class="btn btn-success btn-lg w-100 shadow-sm">
+                                <i class="fas fa-users me-2"></i>View Clubs
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('results') }}" class="btn btn-warning btn-lg w-100 shadow-sm">
+                                <i class="fas fa-trophy me-2"></i>View Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm" style="border-left: 4px solid #0d6efd;">
+                <div class="card-body text-dark">
+                    <i class="fas fa-users fa-lg mb-2 text-primary"></i>
+                    <h4 class="card-title mb-1">{{ clubs|length }}</h4>
+                    <small class="text-muted">Total Clubs</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm" style="border-left: 4px solid #198754;">
+                <div class="card-body text-dark">
+                    <i class="fas fa-medal fa-lg mb-2 text-success"></i>
+                    <h4 class="card-title mb-1">{{ awards|length }}</h4>
+                    <small class="text-muted">Total Awards</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm" style="border-left: 4px solid #ffc107;">
+                <div class="card-body text-dark">
+                    <i class="fas fa-list fa-lg mb-2 text-warning"></i>
+                    <h4 class="card-title mb-1">{{ nominations|length }}</h4>
+                    <small class="text-muted">Total Nominations</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm" style="border-left: 4px solid #0dcaf0;">
+                <div class="card-body text-dark">
+                    <i class="fas fa-check-circle fa-lg mb-2 text-info"></i>
+                    <h4 class="card-title mb-1">{{ nominations|length }}</h4>
+                    <small class="text-muted">Accepted Nominations</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nominations Table -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Nominations ({{ nominations|length }})
+                    </h5>
+                    <div class="ms-auto" style="max-width: 260px;">
+                        <input id="nomSearch" type="text" class="form-control form-control-sm" placeholder="Search club, award, status...">
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if nominations %}
+                        <div class="table-responsive" style="max-height: 520px; overflow: auto;">
+                            <table id="nominationsTable" class="table table-sm table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Club</th>
+                                        <th>Award</th>
+                                        <th>Status</th>
+                                        <th>Submitted By</th>
+                                        <th>Date</th>
+                                        <th>Reason</th>
+                                        <th style="width: 120px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for nomination in nominations %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ nomination.club.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ nomination.club.category }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ nomination.award.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ nomination.award.category }}</small>
+                                        </td>
+                                        <td>
+                                            {% if nomination.is_approved %}
+                                                <span class="badge bg-success">Approved</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ nomination.submitted_by or 'system' }}</small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ nomination.submitted_at.strftime('%B %d, %Y') }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="d-inline-block text-truncate" style="max-width: 280px;" title="{{ nomination.reason }}">
+                                                {{ nomination.reason }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                {% if not nomination.is_approved %}
+                                                <a class="btn btn-outline-success" href="{{ url_for('approve_nomination', nomination_id=nomination.id) }}" title="Approve">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                                {% endif %}
+                                                <a class="btn btn-outline-danger" href="{{ url_for('reject_nomination', nomination_id=nomination.id) }}" title="Reject">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <script>
+                            (function() {
+                                const input = document.getElementById('nomSearch');
+                                const table = document.getElementById('nominationsTable');
+                                if (!input || !table) return;
+                                input.addEventListener('input', function() {
+                                    const q = this.value.toLowerCase();
+                                    for (const row of table.tBodies[0].rows) {
+                                        const text = row.innerText.toLowerCase();
+                                        row.style.display = text.includes(q) ? '' : 'none';
+                                    }
+                                });
+                            })();
+                        </script>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5>No nominations yet</h5>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('awards') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-ranking-star me-2"></i>View Rankings (per Award)
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('clubs') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-users me-2"></i>View Clubs
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('results') }}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-trophy me-2"></i>View Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

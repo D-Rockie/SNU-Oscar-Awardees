@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ award.name }} - Oscar Pista Awards{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h3 class="mb-1">{{ award.name }}</h3>
+    <div class="text-muted mb-3">{{ award.category }}</div>
+
+    <div class="mb-3">
+        <a href="{{ url_for('vote_award', award_id=award.id) }}" class="btn btn-sm btn-primary">Vote for a Club</a>
+    </div>
+
+    <h5 class="mb-3">Eligible Clubs</h5>
+    {% if eligible_clubs %}
+    <ul class="list-group">
+        {% for club in eligible_clubs %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                {{ club.name }} <small class="text-muted">({{ club.category }})</small>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="alert alert-info">No eligible clubs for this award.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Oscar Pista Awards{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-5">
+                <i class="fas fa-tachometer-alt me-3"></i>User Dashboard
+            </h1>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x mb-3"></i>
+                    <h5 class="card-title">View Clubs</h5>
+                    <p class="card-text">Browse all available clubs</p>
+                    <a href="{{ url_for('clubs') }}" class="btn btn-light">
+                        <i class="fas fa-eye me-2"></i>Browse
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-warning text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-medal fa-2x mb-3"></i>
+                    <h5 class="card-title">Vote on Awards</h5>
+                    <p class="card-text">Cast your vote for eligible clubs</p>
+                    <a href="{{ url_for('awards') }}" class="btn btn-light">
+                        <i class="fas fa-vote-yea me-2"></i>Vote
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-trophy fa-2x mb-3"></i>
+                    <h5 class="card-title">Results</h5>
+                    <p class="card-text">See award results (when declared)</p>
+                    <a href="{{ url_for('results') }}" class="btn btn-light">
+                        <i class="fas fa-eye me-2"></i>View
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if winners %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Declared Winners</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Award</th>
+                                    <th>Winning Club</th>
+                                    <th>Reason</th>
+                                    <th>Declared At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for d in winners %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ d.award.name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ d.award.category }}</small>
+                                    </td>
+                                    <td>
+                                        <strong>{{ d.club.name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ d.club.category }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 320px;" title="{{ d.reason }}">{{ d.reason }}</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ d.award.declared_at.strftime('%B %d, %Y') if d.award.declared_at else '-' }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Winners have not been declared yet. Check back later.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

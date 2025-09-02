@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Nominate Club - Award Categorization System{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                        <h2 class="card-title">Nominate a Club</h2>
+                        <p class="text-muted">Select a club and award to submit your nomination.</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="club_id" class="form-label">
+                                    <i class="fas fa-users me-2"></i>Select Club
+                                </label>
+                                <select class="form-select" id="club_id" name="club_id" required>
+                                    <option value="">Choose a club...</option>
+                                    {% for club in clubs %}
+                                    <option value="{{ club.id }}" 
+                                            {% if request.args.get('club_id')|int == club.id %}selected{% endif %}>
+                                        {{ club.name }} ({{ club.category }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="award_id" class="form-label">
+                                    <i class="fas fa-medal me-2"></i>Select Award
+                                </label>
+                                <select class="form-select" id="award_id" name="award_id" required>
+                                    <option value="">Choose an award...</option>
+                                    {% for award in awards %}
+                                    <option value="{{ award.id }}"
+                                            {% if request.args.get('award_id')|int == award.id %}selected{% endif %}>
+                                        {{ award.name }} ({{ award.category }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="reason" class="form-label">
+                                <i class="fas fa-comment me-2"></i>Reason for Nomination
+                            </label>
+                            <textarea class="form-control" id="reason" name="reason" rows="5" 
+                                      placeholder="Please explain why this club deserves this award..." required></textarea>
+                            <div class="form-text">
+                                Be specific about the club's achievements, activities, and why they should win this award.
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Nomination
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const clubSelect = document.getElementById('club_id');
+    const awardSelect = document.getElementById('award_id');
+    
+    // Auto-fill reason based on selected club and award
+    function updateReason() {
+        const selectedClub = clubSelect.options[clubSelect.selectedIndex];
+        const selectedAward = awardSelect.options[awardSelect.selectedIndex];
+        
+        if (selectedClub.value && selectedAward.value) {
+            const clubName = selectedClub.text.split(' (')[0];
+            const awardName = selectedAward.text.split(' (')[0];
+            
+            const reasonTextarea = document.getElementById('reason');
+            if (!reasonTextarea.value) {
+                reasonTextarea.value = `I nominate ${clubName} for the ${awardName} because...`;
+            }
+        }
+    }
+    
+    clubSelect.addEventListener('change', updateReason);
+    awardSelect.addEventListener('change', updateReason);
+});
+</script>
+{% endblock %}

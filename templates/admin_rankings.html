@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Rankings - {{ award.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="mb-0">{{ award.name }}</h3>
+            <div class="text-muted">Rankings & evaluation metrics</div>
+            {% if award.winners_declared %}
+                <span class="badge bg-success mt-2">Winners Declared</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if total_votes is not none %}
+    <div class="alert alert-secondary">Total votes received for this award: <strong>{{ total_votes }}</strong></div>
+    {% endif %}
+
+    {% if decision %}
+    <div class="alert alert-info">
+        <strong>Current Winner:</strong> {{ decision.club.name }}<br>
+        <strong>Reason:</strong> {{ decision.reason or '—' }}
+    </div>
+    {% endif %}
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="mb-2">Weights</h6>
+            <div class="row">
+                <div class="col">Social: {{ '%.2f' % weights.w_social }}</div>
+                <div class="col">WhatsApp: {{ '%.2f' % weights.w_whatsapp }}</div>
+                <div class="col">Awards: {{ '%.2f' % weights.w_awards }}</div>
+                <div class="col">Feedback: {{ '%.2f' % weights.w_feedback }}</div>
+                <div class="col">Attendance: {{ '%.2f' % weights.w_attendance }}</div>
+                <div class="col">Reports: {{ '%.2f' % weights.w_reports }}</div>
+            </div>
+        </div>
+    </div>
+
+    {% if rankings %}
+    <form method="POST" action="{{ url_for('decide_award', award_id=award.id) }}" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Pick winner</label>
+                <select name="club_id" class="form-select">
+                    {% for r in rankings %}
+                    <option value="{{ r.club.id }}" {% if decision and decision.club_id == r.club.id %}selected{% endif %}>#{{ r.rank }} — {{ r.club.name }} ({{ '%.3f' % r.score }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Reason (visible to admin)</label>
+                <input type="text" class="form-control" name="reason" value="{{ decision.reason if decision else '' }}" placeholder="Why this club wins">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Save Winner</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Club</th>
+                    <th>Score</th>
+                    <th>Votes</th>
+                    <th>Social</th>
+                    <th>WhatsApp</th>
+                    <th>Awards</th>
+                    <th>Feedback</th>
+                    <th>Attendance</th>
+                    <th>Reports</th>
+                    <th>Raw Metrics</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rankings %}
+                <tr {% if decision and decision.club_id == r.club.id %}class="table-success"{% endif %}>
+                    <td>#{{ r.rank }}</td>
+                    <td>{{ r.club.name }}</td>
+                    <td><strong>{{ '%.3f' % r.score }}</strong></td>
+                    <td>{{ vote_counts.get(r.club.id, 0) }}</td>
+                    <td>{{ '%.3f' % r.details.social }}</td>
+                    <td>{{ '%.3f' % r.details.whatsapp }}</td>
+                    <td>{{ '%.3f' % r.details.awards }}</td>
+                    <td>{{ '%.3f' % r.details.feedback }}</td>
+                    <td>{{ '%.3f' % r.details.attendance }}</td>
+                    <td>{{ '%.3f' % r.details.reports }}</td>
+                    <td class="small text-muted">
+                        posts: {{ r.details.raw.posts }}, likes: {{ r.details.raw.likes }}, reach: {{ r.details.raw.reach }},
+                        msgs: {{ r.details.raw.messages }}, sent: {{ r.details.raw.sentiment }},
+                        awards: {{ r.details.raw.awards_won }}, votes: {{ r.details.raw.votes }},
+                        attendance: {{ r.details.raw.offline_attendance }}, report_score: {{ '%.3f' % r.details.raw.report_score }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No eligible clubs found for this award.</div>
+    {% endif %}
+</div>
+{% endblock %}

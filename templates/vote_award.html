@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Vote - {{ award.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h3 class="mb-3">Vote: {{ award.name }}</h3>
+    <div class="row">
+        <div class="col-lg-6">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Select a club</label>
+                    <select name="club_id" class="form-select" required>
+                        {% for club in eligible_clubs %}
+                        <option value="{{ club.id }}">{{ club.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Optional voter token (prevents duplicate voting)</label>
+                    <input type="text" class="form-control" name="voter_hash" placeholder="e.g., your student ID hash">
+                </div>
+                <button class="btn btn-primary">Submit Vote</button>
+            </form>
+        </div>
+        <div class="col-lg-6">
+            {% if rankings %}
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="mb-2">Admin-Only Rankings Preview</h6>
+                        <ol class="mb-0">
+                            {% for r in rankings[:5] %}
+                            <li>{{ r.club.name }} — {{ '%.3f' % r.score }}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                </div>
+            {% elif award.winners_declared %}
+                <div class="alert alert-success">
+                    Winners have been declared for this award.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
